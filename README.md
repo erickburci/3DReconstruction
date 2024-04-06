@@ -1,4 +1,4 @@
-#### Project Overview
+# Project Overview
 For the final project I implemented 3D reconstruction which is the process of generating
 3D information of an object using numerous 2D image data. The main aim of this course was to
 learn and implement algorithms that work hand in hand with image capturing and would allow
