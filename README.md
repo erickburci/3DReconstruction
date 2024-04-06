@@ -165,11 +165,8 @@ considerable amount of time.
 
 ![image](https://github.com/erickburci/3DReconstruction/assets/159087967/1f1f135b-3119-4ed0-97d0-22df2df8cfff)
 
-    -  Poisson Surface Reconstruction
-      - I also used the meshLab tools for Poisson Surface Reconstruction. To use
-the tool I first had to flatten my mesh result after alignment. The tool itself
-was fairly simple to use, and I found that the default parameters worked
-best for manny.
+  -  Poisson Surface Reconstruction
+    - I also used the meshLab tools for Poisson Surface Reconstruction. To use the tool I first had to flatten my mesh result after alignment. The tool itself was fairly simple to use, and I found that the default parameters worked best for manny.
 
 ![image](https://github.com/erickburci/3DReconstruction/assets/159087967/73f41e81-bc9f-4333-b0cb-80e25a62929d)
 
