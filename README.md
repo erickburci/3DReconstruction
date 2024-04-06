@@ -1,3 +1,7 @@
+
+![image](https://github.com/erickburci/3DReconstruction/assets/159087967/c5a01602-d3c4-44ff-a40f-768cbc7423c0)
+
+
 # 3D Reconstruction
 
 ## Project Overview
