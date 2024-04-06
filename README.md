@@ -53,4 +53,103 @@ parameters calculated previously along with initial parameters of its orientatio
 and uses least squares to calculate the extrinsic parameters of the camera (i.e. its
 rotation and transformation)
 
+![image](https://github.com/erickburci/3DReconstruction/assets/159087967/3ba15140-88db-4ad7-ad68-83ff35b1aa9b)
+![image](https://github.com/erickburci/3DReconstruction/assets/159087967/b5c8e800-69e3-472f-b9f3-4e19f07fa4b9)
+
+3. def decode
+  - This function reads in the file location for images captured with the left and right
+cameras that have the object with the structure light projected onto it. From the
+structured light patterned the function figures out the gray code, converts it to
+binary code, and then to its decimal value and finally and returns an array which
+is the same size as the camera image where each element contains the decoded
+value as well as a binary image mask indicating which pixels were reliably
+decoded. Most of the code was left the same from my assignment4, however for
+this project I added a few lines to calculate an object mask using the colored
+images in each folder.
+
+![image](https://github.com/erickburci/3DReconstruction/assets/159087967/a0e7eac5-cffd-48a4-8fe0-fb675f1d1a2e)
+
+4. def reconstruct
+  - This function reads in the file location of the set of graycoded images from each
+camera and produces a 3D point cloud. The decode function is called four times
+(twice for each camera because the greycoded images have the standard projected
+light and its inverse) to decode the horizontal and vertical images for both the left
+and right cameras. Once decode returns the decoded greycoded images and their
+mask, the reconstruct function combines the horizontal and vertical codes to get a
+single (20-bit) integer for the left and right cameras as well as combines the
+corresponding binary masks so only pixels with both good horizontal and vertical
+codes are marked as valid. Furthermore, for this project I also combine the object
+mask so that the background for each image is removed as much as possible.
+Then, the function finds corresponding points for both the left and right images
+for each pixel which was successfully decoded. To do this, I utilized the
+numpy.intersect1d function. Finally, after getting the indices of the corresponding
+points, I was able to use the triangulate function to get the 3D coordinates for the
+set of pixels.
+
+5. def triangulate
+  - This function is called in the previously described reconstruct function. This code
+was not changed from when I implemented it in assignment2.
+  - The function takes in the coordinates of points in two images calculated in the
+reconstruct function, along with the camera parameters calculated from
+calibratePose, and returns the 3D coordinates of the points in the real world. To
+triangulate the points, I again use the least squares technique (np.linalg.lstsq), this
+time to calculate the z coordinates for the object. Finally, after the z-coordinates
+are calculated, the function transforms them back to the world coordinate system.
+
+![image](https://github.com/erickburci/3DReconstruction/assets/159087967/c71b2544-318b-4ea3-97cc-bb99038e87c8)
+
+Once the 3D coordinates were successfully calculated, I was able to generate a
+simple mesh to represent the object.
+
+6. Mesh Clean Up
+  - Bounding Box Pruning
+    - After displaying the generated 3D coordinates, I was able to visualize the
+boundaries of the object. I then created an array of the bounds:
+np.array([lowerX, upperX, lowerY, upperY, lowerZ, upperZ]) and then
+used intersect1D to prune the indices of the points in pts3 so that only the
+points that were inside the bounds were kept.
+*xlims = np.intersect1d(np.argwhere(pts3[0]>boxlimits[0]),np.argwhere(pts3[0]<boxlimits[1]))*
+*ylims = np.intersect1d(np.argwhere(pts3[1]>boxlimits[2]),np.argwhere(pts3[1]<boxlimits[3]))*
+*zlims = np.intersect1d(np.argwhere(pts3[2]>boxlimits[4]),np.argwhere(pts3[2]<boxlimits[5]))*
+*tlims = np.intersect1d(xlims,ylims)*
+*tlims = np.intersect1d(tlims,zlims)*
+*pts3pruned = pts3[:,tlims]*
+*pts2Lpruned = pts2L[:,tlims]*
+*pts2Rpruned = pts2R[:,tlims]*
+  - Triangle Pruning
+    - Once I recovered the pruned 3D points, I was able to use the Delaunay
+function to triangulate the coordinates. After getting triangles for the left
+and right 2D points, I used those coordinate indices to find the triangles in
+3D. Then for each triangle I checked to see if any edge was greater than
+some threshold (1.7 seemed to work best).
+  - To check prune the larger triangles I implemented a function
+edgeCheck which took in triangle corners and calculated the
+Euclidean distance between each point and checked if it was
+greater than the threshold.
+
+![image](https://github.com/erickburci/3DReconstruction/assets/159087967/01e211c6-c1ec-4277-a047-1e386806877c)
+
+7. Mesh Smoothing
+  - The original mesh results were very rough. To improve the meshes that were
+generated, I implemented the simplest strategy. For each corner in each triangle I
+calculate the average of the other two corners and save the new coordinate point.
+After calculating new corners, I stored the triangle back inside a copy of the
+original pruned 3D points. Once finished, the new set of 3D points contained a
+smoother version of the original. I only calculated the average of two surrounding
+points each time because I figured the process will propagate for each point and
+will eventually get averaged by more surround points as I iterate through every
+triangle. For the manny object, I found that 2 smoothing iterations worked best
+before the mesh became over-smoothed.
+*pts3smoothed = pts3pruned.copy()*
+*for i in range(x):*
+*for triangle in Tri:*
+*p1,p2,p3 = pts3smoothed[:,tri].T*
+*p1new = (p2+p3)/2*
+*p2new = (p1+p3)/2*
+*p3new = (p1+p2)/2*
+*pts3smoothed[:,tri] = np.array([p1new,p2new,p3new]).T*
+
+
+
+
 
