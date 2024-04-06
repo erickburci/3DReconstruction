@@ -108,6 +108,7 @@ boundaries of the object. I then created an array of the bounds:
 np.array([lowerX, upperX, lowerY, upperY, lowerZ, upperZ]) and then
 used intersect1D to prune the indices of the points in pts3 so that only the
 points that were inside the bounds were kept.
+
 *xlims = np.intersect1d(np.argwhere(pts3[0]>boxlimits[0]),np.argwhere(pts3[0]<boxlimits[1]))*
 *ylims = np.intersect1d(np.argwhere(pts3[1]>boxlimits[2]),np.argwhere(pts3[1]<boxlimits[3]))*
 *zlims = np.intersect1d(np.argwhere(pts3[2]>boxlimits[4]),np.argwhere(pts3[2]<boxlimits[5]))*
@@ -116,6 +117,7 @@ points that were inside the bounds were kept.
 *pts3pruned = pts3[:,tlims]*
 *pts2Lpruned = pts2L[:,tlims]*
 *pts2Rpruned = pts2R[:,tlims]*
+
   - Triangle Pruning
     - Once I recovered the pruned 3D points, I was able to use the Delaunay
 function to triangulate the coordinates. After getting triangles for the left
@@ -140,6 +142,7 @@ points each time because I figured the process will propagate for each point and
 will eventually get averaged by more surround points as I iterate through every
 triangle. For the manny object, I found that 2 smoothing iterations worked best
 before the mesh became over-smoothed.
+
 *pts3smoothed = pts3pruned.copy()*
 *for i in range(x):*
 *for triangle in Tri:*
@@ -149,7 +152,65 @@ before the mesh became over-smoothed.
 *p3new = (p1+p2)/2*
 *pts3smoothed[:,tri] = np.array([p1new,p2new,p3new]).T*
 
+![image](https://github.com/erickburci/3DReconstruction/assets/159087967/3adb6bcb-e49a-4992-b8fb-5501c17ce176)
 
+8. MeshLab
+  - After generating each mesh, I used mesh.export(‘mesh.ply’) to save the individually
+generated meshes for each set of 3D points.
+    - Mesh Aligning
+      - I used the mesh aligning tools in MeshLab to align the smoothed mesh
+models. For the most part, point alignment seemed to work well, however,
+for some meshes I had to manually align the meshes myself which took a
+considerable amount of time.
 
+![image](https://github.com/erickburci/3DReconstruction/assets/159087967/1f1f135b-3119-4ed0-97d0-22df2df8cfff)
 
+    -  Poisson Surface Reconstruction
+      - I also used the meshLab tools for Poisson Surface Reconstruction. To use
+the tool I first had to flatten my mesh result after alignment. The tool itself
+was fairly simple to use, and I found that the default parameters worked
+best for manny.
 
+![image](https://github.com/erickburci/3DReconstruction/assets/159087967/73f41e81-bc9f-4333-b0cb-80e25a62929d)
+
+## Assessment and Evaluation
+Putting everything together for this final project proved to be a lot more difficult than
+anticipated. And due to personal conflicts and complications throughout the last two week of the
+quarter I wasn’t able to dedicate as much time as I had hoped on this assignment. That being
+said, I don’t believe that this is my best work, however I am still proud of what I was able to
+accomplish. When I began the assignment I initially wanted to work with the teapot, and for the
+most part it was working alright, but when I tired to create the object mask by computing the
+difference in the colored images I found that the teapot cast a large dark shadow which was near
+impossible for me to get rid of. Despite this, I decided to continue with the following steps in the
+project. More problems arose when I found that I wasn’t able to get a clean mesh after
+reconstructing the 3D points. My box and triangle pruning strategies weren’t implemented in the
+most effective way. Perhaps my edgeCheck function that calculated the Euclidean distance was
+the issue, but I could not figure out a more effective way to prune out large triangles. Or maybe
+there were some issues with my decode implementation; my conversion from greycode to binary
+may have been wrong which may have led to the points for the left and right images not being
+effectively corresponded. Whatever the reason, I found that when I went to meshLab to align my
+meshes, some of the meshes did not align well at all. Mainly the handle for each mesh was in a
+slightly different spot/angle. Also, there were many artifacts through the aligned mesh and even
+large holes in the teapot. To make matters worse, point alignment did not seem to work at all for
+my teapot meshes, so I had to align all of them together by hand which was very strenuous.
+When I was finally ready to do Poisson surface reconstruction, some of the issues were fixed,
+such as the large holes being filled in, however the handle was a complete mess.
+
+![image](https://github.com/erickburci/3DReconstruction/assets/159087967/251d61d3-133f-437c-a1fc-ed873f960084)
+
+After the teapot, I attempted the couple but for some reason I could not generate the meshes for
+the object. They all came out inverse, where the outside detail (which was supposed to be
+convex) came out concave and when I tried to fix it so that it was properly convexed, all of the
+detail was lost. I also had a hard time getting the color to show up on any of my meshes so
+without the detail of the texture, the couple object looked like a log. Ultimately I decided to work
+with many, which had similar problems of not having much detail in texture and not having color
+but it seemed to work the best. Perhaps a lot of detail was lost because of my mesh smoothing
+technique; rather than taking all neighbors of all triangles that connected to a given point, I only
+averaged amongst the neighbors within its own triangle, thinking that the effect would propagate
+as I visited every triangle. Manny had the best image data when creating my object mask, It was
+able to almost perfectly distinguish between background and the foreground object. Whereas the
+large shadow in the teapot made mesh cleaning very difficult. If I gave myself more time to work
+on this project I would have definitely figured out how to add color to the 3D models. I also did
+not give myself enough time to organize all my code and streamline the process. All in all, I had
+some fun with the final project and was excited to see some results, even if they weren't what I
+expected.
