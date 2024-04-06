@@ -40,15 +40,15 @@ This was essential for determining corresponding points in the image.
 ## Algorithms/Functions/Scripts and Their Results
 The following algorithms are explained in the order of implementation/its usage in the
 scanning pipeline of the final project.
-1. calibrate.py
-○ This script was provided by Professor Fowlkes in assignment3. It collects the
+**1. calibrate.py**
+  - This script was provided by Professor Fowlkes in assignment3. It collects the
 images from the calib_jpg_u folder and utilizes the opencv library to find the
 corners of the checkerboard and calculates the intrinsic parameters for the
 cameras to store them in a pickle file for use later in the project. Once the intrinsic
 parameters are retrieved, I was able to create camera objects and calculate the
 extrinsic parameters.
-2. def calibratePose
-○ This function takes in two camera objects, each created with the intrinsic
+**2. def calibratePose**
+  - This function takes in two camera objects, each created with the intrinsic
 parameters calculated previously along with initial parameters of its orientation,
 and uses least squares to calculate the extrinsic parameters of the camera (i.e. its
 rotation and transformation)
